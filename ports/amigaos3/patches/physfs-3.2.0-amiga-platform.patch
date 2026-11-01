@@ -1,8 +1,8 @@
 diff --git a/src/physfs_platforms.h b/src/physfs_platforms.h
-index a168b82..4ea1407 100644
+index 1ac17d9..e9bfac8 100644
 --- a/src/physfs_platforms.h
 +++ b/src/physfs_platforms.h
-@@ -41,6 +41,10 @@
+@@ -40,6 +40,10 @@
  #  define PHYSFS_PLATFORM_POSIX 1
  #elif defined(macintosh)
  #  error Classic Mac OS support was dropped from PhysicsFS 2.0. Move to OS X.

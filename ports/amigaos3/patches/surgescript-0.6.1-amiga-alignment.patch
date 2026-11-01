@@ -1,10 +1,10 @@
 diff --git a/src/surgescript/third_party/xxhash.h b/src/surgescript/third_party/xxhash.h
-index 89290df..8e3a2cb 100644
+index 08ab794..133ffae 100644
 --- a/src/surgescript/third_party/xxhash.h
 +++ b/src/surgescript/third_party/xxhash.h
 @@ -1005,7 +1005,10 @@ struct XXH64_state_s {
+    XXH64_hash_t reserved64;   /*!< Reserved field. Do not read or write to it, it may be removed. */
  };   /* typedef'd to XXH64_state_t */
- 
  
 -#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
 +#if defined(__amigaos3__)
