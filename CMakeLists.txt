@@ -53,6 +53,12 @@ message("${GAME_NAME} version ${GAME_VERSION_STRING}")
 
 option(ALLEGRO_MONOLITH "Use the monolith version of Allegro" OFF)
 option(SURGESCRIPT_STATIC "Link SurgeScript statically" OFF)
+option(OPEN_SURGE_AMIGAOS3 "Build for classic AmigaOS 3.x using OpenAmigaGCC" OFF)
+
+if(OPEN_SURGE_AMIGAOS3)
+  list(APPEND DEFS "__AMIGAOS3__=1")
+  set(GAME_RUNINPLACE ON CACHE BOOL "Read assets from the executable directory" FORCE)
+endif()
 
 # Link Allegro statically
 option(ALLEGRO_STATIC "Link Allegro statically (Windows only)" OFF)
@@ -282,6 +288,16 @@ elseif(ANDROID)
   target_link_libraries(${GAME_UNIXNAME} ${LM} ${LSURGESCRIPT} ${LPHYSFS} ${LALLEGRO_ALL} ${LLOG})
   target_include_directories(${GAME_UNIXNAME} PUBLIC ${SURGESCRIPT_INCDIR} ${PHYSFS_INCDIR} ${ALLEGRO_INCDIR})
   set_target_properties(${GAME_UNIXNAME} PROPERTIES COMPILE_FLAGS "-Wall")
+
+elseif(OPEN_SURGE_AMIGAOS3)
+
+  # Classic AmigaOS executable. The platform compatibility library supplied
+  # through ALLEGRO_LIBRARY_PATH owns display, input, audio and timer services.
+  find_library(LM m)
+  add_executable(${GAME_UNIXNAME} ${GAME_SRCS})
+  target_link_libraries(${GAME_UNIXNAME} ${LM} ${LSURGESCRIPT} ${LPHYSFS} ${LALLEGRO_ALL})
+  target_include_directories(${GAME_UNIXNAME} PUBLIC ${SURGESCRIPT_INCDIR} ${PHYSFS_INCDIR} ${ALLEGRO_INCDIR})
+  target_compile_options(${GAME_UNIXNAME} PRIVATE -Wall)
 
 elseif(UNIX)
 
