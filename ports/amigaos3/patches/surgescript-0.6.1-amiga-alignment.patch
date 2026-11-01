@@ -1,0 +1,16 @@
+diff --git a/src/surgescript/third_party/xxhash.h b/src/surgescript/third_party/xxhash.h
+index 89290df..8e3a2cb 100644
+--- a/src/surgescript/third_party/xxhash.h
++++ b/src/surgescript/third_party/xxhash.h
+@@ -1005,7 +1005,10 @@ struct XXH64_state_s {
+ };   /* typedef'd to XXH64_state_t */
+ 
+ 
+-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
++#if defined(__amigaos3__)
++/* Classic Amiga HUNK objects support at most 8-byte alignment. */
++#  define XXH_ALIGN(n)      __attribute__ ((aligned(8)))
++#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
+ #  include <stdalign.h>
+ #  define XXH_ALIGN(n)      alignas(n)
+ #elif defined(__cplusplus) && (__cplusplus >= 201103L) /* >= C++11 */

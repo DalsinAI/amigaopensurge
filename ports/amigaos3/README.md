@@ -9,6 +9,7 @@ OpenAmigaGCC 68040/68881 target used by AmigaChrome.
 - CMake can now create a classic AmigaOS executable target.
 - The executable is configured to run in place so assets remain beside it.
 - The build script fails early and names every missing target dependency.
+- SurgeScript 0.6.1 and PhysicsFS 3.2.0 have verified 68k static builds.
 - No successful AmigaOS binary or runtime claim exists yet.
 
 ## Dependency gate
@@ -30,6 +31,11 @@ libraries exist, it exits with code 3 and prints the exact missing files. Once
 they are staged, the same command performs the real CMake configuration and
 compile, ensuring later failures are compiler/linker evidence rather than a
 paper plan.
+
+`ports/amigaos3/build-dependencies.sh` fetches the pinned SurgeScript and
+PhysicsFS sources, applies the two reviewed classic-Amiga compatibility patches,
+and cross-compiles them into the staging prefix. It deliberately does not fake
+or stub Allegro: the Allegro 5.2 compatibility backend is the remaining gate.
 
 ## Canonical target
 
