@@ -114,7 +114,9 @@ cmake -S "$SOURCE_ROOT/allegro5" -B "$BUILD_ROOT/allegro5" \
     -DWANT_IMAGE_WEBP=OFF \
     -DWANT_IMAGE_JPG=ON \
     -DWANT_IMAGE_PNG=ON \
-    -DWANT_PHYSFS=OFF \
+    -DWANT_PHYSFS=ON \
+    -DPHYSFS_INCLUDE_DIR="$PREFIX/include" \
+    -DPHYSFS_LIBRARY="$PREFIX/lib/libphysfs.a" \
     -DSDL2_INCLUDE_DIR="$AMIGA_SYSROOT/include/SDL2" \
     -DSDL2_LIBRARY_TEMP="$AMIGA_SYSROOT/lib/libSDL2.a" \
     -DOPENGL_gl_LIBRARY="$AMIGA_SYSROOT/lib/libGL.a" \

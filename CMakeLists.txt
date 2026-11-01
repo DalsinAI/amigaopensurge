@@ -301,6 +301,12 @@ elseif(OPEN_SURGE_AMIGAOS3)
   find_library(LPNG png REQUIRED)
   find_library(LZ z REQUIRED)
   find_library(LJPEG jpeg REQUIRED)
+  target_sources(${GAME_UNIXNAME} PRIVATE
+    ports/amigaos3/compat/native_dialog.c
+  )
+  target_include_directories(${GAME_UNIXNAME} BEFORE PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/ports/amigaos3/compat
+  )
   target_link_libraries(${GAME_UNIXNAME}
     ${LSURGESCRIPT}
     ${LPHYSFS}
