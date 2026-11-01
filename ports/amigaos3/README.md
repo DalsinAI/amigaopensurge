@@ -9,9 +9,11 @@ OpenAmigaGCC 68040/68881 target used by AmigaChrome.
 - CMake can now create a classic AmigaOS executable target.
 - The executable is configured to run in place so assets remain beside it.
 - The build script fails early and names every missing target dependency.
-- SurgeScript 0.6.1, PhysicsFS 3.2.0, and Allegro 5.2.11.3 have verified
-  68k static builds.
-- No successful AmigaOS binary or runtime claim exists yet.
+- SurgeScript 0.6.1, PhysicsFS 3.2.0, libogg 1.3.5, libvorbis 1.3.7, and
+  Allegro 5.2.11.3 have verified 68k static builds.
+- All OpenSurge translation units compile and link into an Amiga loadseg()
+  executable.
+- Runtime validation on classic AmigaOS remains outstanding.
 
 ## Dependency gate
 
@@ -28,6 +30,7 @@ SDK's target-side SDL2 and OpenGL libraries. It needs these libraries staged und
   acodec, primitives, color, and memfile addons OpenSurge uses;
 - SurgeScript 0.6.1 static library;
 - PhysicsFS 3.0.2 or newer.
+- libogg and libvorbis for the 28 Ogg/Vorbis music assets in the base game.
 
 Run `ports/amigaos3/build-first-pass.sh` on the porting host. Until the target
 libraries exist, it exits with code 3 and prints the exact missing files. Once

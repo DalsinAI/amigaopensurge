@@ -293,7 +293,6 @@ elseif(OPEN_SURGE_AMIGAOS3)
 
   # Classic AmigaOS executable. The platform compatibility library supplied
   # through ALLEGRO_LIBRARY_PATH owns display, input, audio and timer services.
-  find_library(LM m)
   add_executable(${GAME_UNIXNAME} ${GAME_SRCS})
   find_library(LSDL2 SDL2 REQUIRED)
   find_library(LGL GL REQUIRED)
@@ -301,6 +300,9 @@ elseif(OPEN_SURGE_AMIGAOS3)
   find_library(LPNG png REQUIRED)
   find_library(LZ z REQUIRED)
   find_library(LJPEG jpeg REQUIRED)
+  find_library(LOGG ogg REQUIRED)
+  find_library(LVORBIS vorbis REQUIRED)
+  find_library(LVORBISFILE vorbisfile REQUIRED)
   target_sources(${GAME_UNIXNAME} PRIVATE
     ports/amigaos3/compat/native_dialog.c
   )
@@ -311,13 +313,16 @@ elseif(OPEN_SURGE_AMIGAOS3)
     ${LSURGESCRIPT}
     ${LPHYSFS}
     ${LALLEGRO_ALL}
+    ${LVORBISFILE}
+    ${LVORBIS}
+    ${LOGG}
     ${LSDL2}
     ${LGL}
     ${LFREETYPE}
     ${LPNG}
     ${LJPEG}
     ${LZ}
-    ${LM}
+    m
     pthread
   )
   target_include_directories(${GAME_UNIXNAME} PUBLIC ${SURGESCRIPT_INCDIR} ${PHYSFS_INCDIR} ${ALLEGRO_INCDIR})

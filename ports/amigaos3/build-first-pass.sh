@@ -28,6 +28,9 @@ require_file "$PORT_PREFIX/include/physfs.h"
 require_file "$PORT_PREFIX/lib/liballegro_monolith-static.a"
 require_file "$PORT_PREFIX/lib/libsurgescript-static.a"
 require_file "$PORT_PREFIX/lib/libphysfs.a"
+require_file "$PORT_PREFIX/lib/libogg.a"
+require_file "$PORT_PREFIX/lib/libvorbis.a"
+require_file "$PORT_PREFIX/lib/libvorbisfile.a"
 
 if [ "$missing" -ne 0 ]; then
     echo "OpenSurge configuration deferred until the three target libraries above are staged." >&2

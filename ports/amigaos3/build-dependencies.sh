@@ -89,6 +89,29 @@ cmake -S "$SOURCE_ROOT/physfs" -B "$BUILD_ROOT/physfs" \
 cmake --build "$BUILD_ROOT/physfs" --parallel
 cmake --install "$BUILD_ROOT/physfs"
 
+fetch_source ogg https://github.com/xiph/ogg.git v1.3.5 \
+    e1774cd77f471443541596e09078e78fdc342e4f
+cmake -S "$SOURCE_ROOT/ogg" -B "$BUILD_ROOT/ogg" \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
+    -DAMIGA_PORT_PREFIX="$PREFIX" \
+    -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DINSTALL_DOCS=OFF
+cmake --build "$BUILD_ROOT/ogg" --parallel
+cmake --install "$BUILD_ROOT/ogg"
+
+fetch_source vorbis https://github.com/xiph/vorbis.git v1.3.7 \
+    0657aee69dec8508a0011f47f3b69d7538e9d262
+cmake -S "$SOURCE_ROOT/vorbis" -B "$BUILD_ROOT/vorbis" \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
+    -DAMIGA_PORT_PREFIX="$PREFIX" \
+    -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+    -DBUILD_SHARED_LIBS=OFF
+cmake --build "$BUILD_ROOT/vorbis" --parallel
+cmake --install "$BUILD_ROOT/vorbis"
+
 fetch_source allegro5 https://github.com/liballeg/allegro5.git 5.2.11.3 \
     9e58c5e03af16810e8cfecec719e69ce4a76b49b
 apply_once "$SOURCE_ROOT/allegro5" \
@@ -129,6 +152,11 @@ cmake -S "$SOURCE_ROOT/allegro5" -B "$BUILD_ROOT/allegro5" \
     -DZLIB_LIBRARY="$AMIGA_SDK_DEPS/lib/libz.a" \
     -DJPEG_INCLUDE_DIR="$AMIGA_SDK_DEPS/include" \
     -DJPEG_LIBRARY="$AMIGA_SDK_DEPS/lib/libjpeg.a" \
+    -DOGG_INCLUDE_DIR="$PREFIX/include" \
+    -DOGG_LIBRARY="$PREFIX/lib/libogg.a" \
+    -DVORBIS_INCLUDE_DIR="$PREFIX/include" \
+    -DVORBIS_LIBRARY="$PREFIX/lib/libvorbis.a" \
+    -DVORBISFILE_LIBRARY="$PREFIX/lib/libvorbisfile.a" \
     -DALLEGRO_HAVE_FSEEKO=0 \
     -DALLEGRO_HAVE_FTELLO=0 \
     -DALLEGRO_HAVE_STRERROR_R=0 \
