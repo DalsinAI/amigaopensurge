@@ -30,9 +30,9 @@ apply_once() {
     source_dir=$1
     patch_file=$2
 
-    if git -C "$source_dir" apply --check "$patch_file"; then
+    if git -C "$source_dir" apply --check "$patch_file" 2>/dev/null; then
         git -C "$source_dir" apply "$patch_file"
-    elif git -C "$source_dir" apply --reverse --check "$patch_file"; then
+    elif git -C "$source_dir" apply --reverse --check "$patch_file" 2>/dev/null; then
         : # already applied
     else
         echo "patch does not apply cleanly: $patch_file" >&2
