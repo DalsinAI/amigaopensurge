@@ -25,7 +25,7 @@ require_file() {
 require_file "$PORT_PREFIX/include/allegro5/allegro.h"
 require_file "$PORT_PREFIX/include/surgescript.h"
 require_file "$PORT_PREFIX/include/physfs.h"
-require_file "$PORT_PREFIX/lib/liballegro_monolith.a"
+require_file "$PORT_PREFIX/lib/liballegro_monolith-static.a"
 require_file "$PORT_PREFIX/lib/libsurgescript-static.a"
 require_file "$PORT_PREFIX/lib/libphysfs.a"
 

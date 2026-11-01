@@ -7,6 +7,9 @@ SOURCE_ROOT=${SOURCE_ROOT:-"$ROOT/build/deps-src"}
 BUILD_ROOT=${BUILD_ROOT:-"$ROOT/build/deps-build"}
 TOOLCHAIN="$ROOT/ports/amigaos3/toolchain.cmake"
 PATCH_ROOT="$ROOT/ports/amigaos3/patches"
+AMIGA_STOVE_PATH=${STOVE:-"$HOME/AmigaChrome/stoves/os32-gcc16"}
+AMIGA_SYSROOT="$AMIGA_STOVE_PATH/prefix/m68k-amigaos"
+AMIGA_SDK_DEPS="$AMIGA_SYSROOT/port-deps"
 
 fetch_source() {
     name=$1
@@ -85,5 +88,50 @@ cmake -S "$SOURCE_ROOT/physfs" -B "$BUILD_ROOT/physfs" \
     -DPHYSFS_ARCHIVE_VDF=OFF
 cmake --build "$BUILD_ROOT/physfs" --parallel
 cmake --install "$BUILD_ROOT/physfs"
+
+fetch_source allegro5 https://github.com/liballeg/allegro5.git 5.2.11.3 \
+    9e58c5e03af16810e8cfecec719e69ce4a76b49b
+apply_once "$SOURCE_ROOT/allegro5" \
+    "$PATCH_ROOT/allegro-5.2.11.3-sdl-no-glu.patch"
+
+cmake -S "$SOURCE_ROOT/allegro5" -B "$BUILD_ROOT/allegro5" \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
+    -DAMIGA_PORT_PREFIX="$PREFIX" \
+    -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+    -DALLEGRO_SDL=ON \
+    -DSHARED=OFF \
+    -DWANT_MONOLITH=ON \
+    -DWANT_ALLOW_SSE=OFF \
+    -DWANT_DOCS=OFF \
+    -DWANT_TESTS=OFF \
+    -DWANT_EXAMPLES=OFF \
+    -DWANT_DEMO=OFF \
+    -DWANT_OPENAL=OFF \
+    -DWANT_VIDEO=OFF \
+    -DWANT_NATIVE_DIALOG=OFF \
+    -DWANT_IMAGE_FREEIMAGE=OFF \
+    -DWANT_IMAGE_WEBP=OFF \
+    -DWANT_IMAGE_JPG=ON \
+    -DWANT_IMAGE_PNG=ON \
+    -DWANT_PHYSFS=OFF \
+    -DSDL2_INCLUDE_DIR="$AMIGA_SYSROOT/include/SDL2" \
+    -DSDL2_LIBRARY_TEMP="$AMIGA_SYSROOT/lib/libSDL2.a" \
+    -DOPENGL_gl_LIBRARY="$AMIGA_SYSROOT/lib/libGL.a" \
+    -DOPENGL_INCLUDE_DIR="$AMIGA_SYSROOT/include" \
+    -DFREETYPE_INCLUDE_DIRS="$AMIGA_SDK_DEPS/include/freetype2" \
+    -DFREETYPE_LIBRARY="$AMIGA_SDK_DEPS/lib/libfreetype.a" \
+    -DPNG_PNG_INCLUDE_DIR="$AMIGA_SDK_DEPS/include" \
+    -DPNG_LIBRARY="$AMIGA_SDK_DEPS/lib/libpng.a" \
+    -DZLIB_INCLUDE_DIR="$AMIGA_SDK_DEPS/include" \
+    -DZLIB_LIBRARY="$AMIGA_SDK_DEPS/lib/libz.a" \
+    -DJPEG_INCLUDE_DIR="$AMIGA_SDK_DEPS/include" \
+    -DJPEG_LIBRARY="$AMIGA_SDK_DEPS/lib/libjpeg.a" \
+    -DALLEGRO_HAVE_FSEEKO=0 \
+    -DALLEGRO_HAVE_FTELLO=0 \
+    -DALLEGRO_HAVE_STRERROR_R=0 \
+    -DALLEGRO_HAVE_STRERROR_S=0
+cmake --build "$BUILD_ROOT/allegro5" --parallel
+cmake --install "$BUILD_ROOT/allegro5"
 
 echo "Installed AmigaOS target dependencies in $PREFIX"

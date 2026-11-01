@@ -14,7 +14,11 @@ set(ALLEGRO_LIBS
 )
 
 if(ALLEGRO_MONOLITH)
-  set(ALLEGRO_LIBS allegro_monolith)
+  if(OPEN_SURGE_AMIGAOS3)
+    set(ALLEGRO_LIBS allegro_monolith-static)
+  else()
+    set(ALLEGRO_LIBS allegro_monolith)
+  endif()
 endif()
 
 if(ALLEGRO_STATIC)

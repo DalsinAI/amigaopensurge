@@ -56,7 +56,7 @@ option(SURGESCRIPT_STATIC "Link SurgeScript statically" OFF)
 option(OPEN_SURGE_AMIGAOS3 "Build for classic AmigaOS 3.x using OpenAmigaGCC" OFF)
 
 if(OPEN_SURGE_AMIGAOS3)
-  list(APPEND DEFS "__AMIGAOS3__=1")
+  list(APPEND DEFS "__AMIGAOS3__=1" "ALLEGRO_STATICLINK=1")
   set(GAME_RUNINPLACE ON CACHE BOOL "Read assets from the executable directory" FORCE)
 endif()
 
@@ -295,7 +295,25 @@ elseif(OPEN_SURGE_AMIGAOS3)
   # through ALLEGRO_LIBRARY_PATH owns display, input, audio and timer services.
   find_library(LM m)
   add_executable(${GAME_UNIXNAME} ${GAME_SRCS})
-  target_link_libraries(${GAME_UNIXNAME} ${LM} ${LSURGESCRIPT} ${LPHYSFS} ${LALLEGRO_ALL})
+  find_library(LSDL2 SDL2 REQUIRED)
+  find_library(LGL GL REQUIRED)
+  find_library(LFREETYPE freetype REQUIRED)
+  find_library(LPNG png REQUIRED)
+  find_library(LZ z REQUIRED)
+  find_library(LJPEG jpeg REQUIRED)
+  target_link_libraries(${GAME_UNIXNAME}
+    ${LSURGESCRIPT}
+    ${LPHYSFS}
+    ${LALLEGRO_ALL}
+    ${LSDL2}
+    ${LGL}
+    ${LFREETYPE}
+    ${LPNG}
+    ${LJPEG}
+    ${LZ}
+    ${LM}
+    pthread
+  )
   target_include_directories(${GAME_UNIXNAME} PUBLIC ${SURGESCRIPT_INCDIR} ${PHYSFS_INCDIR} ${ALLEGRO_INCDIR})
   target_compile_options(${GAME_UNIXNAME} PRIVATE -Wall)
 
