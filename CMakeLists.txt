@@ -392,5 +392,11 @@ elseif(GAME_RUNINPLACE)
     PATTERN ".git" EXCLUDE
     PATTERN "screenshots/*.png" EXCLUDE
   )
+  if(OPEN_SURGE_AMIGAOS3)
+    install(FILES ports/amigaos3/RUNTIME.md
+      DESTINATION "${GAME_DISTDIR}"
+      RENAME AMIGAOS3-README.md
+    )
+  endif()
 
 endif()

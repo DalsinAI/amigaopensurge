@@ -14,6 +14,8 @@ OpenAmigaGCC 68040/68881 target used by AmigaChrome.
 - All OpenSurge translation units compile and link into an Amiga loadseg()
   executable.
 - Runtime validation on classic AmigaOS remains outstanding.
+- `package.sh` creates a stripped portable archive with the complete asset set
+  and a runtime handoff note.
 
 ## Dependency gate
 
