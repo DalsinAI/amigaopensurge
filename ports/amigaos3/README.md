@@ -48,10 +48,10 @@ paper plan.
 
 `ports/amigaos3/build-dependencies.sh` fetches the pinned dependency sources and
 cross-compiles them into the staging prefix. Allegro comes from the separately
-maintained `DalsinAI/amigaallegro` port at an exact commit. A small reproducible
-performance patch is applied while the same change is carried in that port
-repository; OpenSurge does not replace Allegro calls in the game. Feature-probe
-overrides select the libc calls actually available on the target. The
+maintained `DalsinAI/amigaallegro` port at an exact commit. The OpenGPU
+performance changes are carried in that shared port; OpenSurge does not replace
+Allegro calls in the game. Feature-probe overrides select the libc calls
+actually available on the target. The
 SurgeScript patch also fixes its 32-bit `MOVX` operand on big-endian 68k; without
 that correction, small constructor allocations are decoded in the high half of
 the 64-bit register and exhaust the script heap during startup.

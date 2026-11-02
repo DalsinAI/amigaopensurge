@@ -129,9 +129,7 @@ cmake --build "$BUILD_ROOT/vorbis" --parallel
 cmake --install "$BUILD_ROOT/vorbis"
 
 fetch_commit amigaallegro https://github.com/DalsinAI/amigaallegro.git \
-    51df076df8e17b0ad4feca0f455e6725edbab221
-apply_once "$SOURCE_ROOT/amigaallegro" \
-    "$PATCH_ROOT/amigaallegro-opengpu-performance.patch"
+    a55b4b2ea532b22809f813fd61c2e99d9a045139
 
 cmake -S "$SOURCE_ROOT/amigaallegro" -B "$BUILD_ROOT/amigaallegro" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
