@@ -15,6 +15,11 @@ OpenAmigaGCC 68040/68881 target used by AmigaChrome.
   executable.
 - Windowed and fullscreen runtime paths are validated on AmigaOS 3.2.3 in an
   AmigaChrome AC090 Cradle lab using OpenGPU and the existing SDL2 module.
+- Release builds use `-O3` plus link-time optimisation. Set
+  `OPEN_SURGE_AMIGA_PROFILE=ON` when running `build-first-pass.sh` to emit
+  300-frame phase averages for controlled performance comparisons.
+- Stored ZIP game packs, persistent compatibility-pack caching, batched logging,
+  larger Amiga music buffers and OpenGPU-safe Allegro batching are enabled.
 - `package.sh` creates a stripped RC archive with the complete asset set and a
   runtime handoff note.
 
@@ -43,8 +48,9 @@ paper plan.
 
 `ports/amigaos3/build-dependencies.sh` fetches the pinned dependency sources and
 cross-compiles them into the staging prefix. Allegro comes from the separately
-maintained `DalsinAI/amigaallegro` port at an exact commit; OpenSurge does not
-carry a second Allegro patch or replace Allegro calls in the game. Feature-probe
+maintained `DalsinAI/amigaallegro` port at an exact commit. A small reproducible
+performance patch is applied while the same change is carried in that port
+repository; OpenSurge does not replace Allegro calls in the game. Feature-probe
 overrides select the libc calls actually available on the target. The
 SurgeScript patch also fixes its 32-bit `MOVX` operand on big-endian 68k; without
 that correction, small constructor allocations are decoded in the high half of

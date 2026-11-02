@@ -27,6 +27,7 @@
 
 void logfile_init(int flags); /* initializes the logfile module */
 void logfile_message(const char *fmt, ...); /* prints a message to the logfile (printf style) */
+void logfile_flush(); /* forces buffered log output to secondary storage */
 void logfile_release(int flags); /* releases the logfile module */
 
 #endif

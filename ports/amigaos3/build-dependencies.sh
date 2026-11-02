@@ -98,7 +98,7 @@ cmake -S "$SOURCE_ROOT/physfs" -B "$BUILD_ROOT/physfs" \
     -DPHYSFS_ARCHIVE_WAD=OFF \
     -DPHYSFS_ARCHIVE_HOG=OFF \
     -DPHYSFS_ARCHIVE_MVL=OFF \
-    -DPHYSFS_ARCHIVE_QPAK=OFF \
+    -DPHYSFS_ARCHIVE_QPAK=ON \
     -DPHYSFS_ARCHIVE_SLB=OFF \
     -DPHYSFS_ARCHIVE_ISO9660=OFF \
     -DPHYSFS_ARCHIVE_VDF=OFF
@@ -130,6 +130,8 @@ cmake --install "$BUILD_ROOT/vorbis"
 
 fetch_commit amigaallegro https://github.com/DalsinAI/amigaallegro.git \
     51df076df8e17b0ad4feca0f455e6725edbab221
+apply_once "$SOURCE_ROOT/amigaallegro" \
+    "$PATCH_ROOT/amigaallegro-opengpu-performance.patch"
 
 cmake -S "$SOURCE_ROOT/amigaallegro" -B "$BUILD_ROOT/amigaallegro" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -138,7 +140,7 @@ cmake -S "$SOURCE_ROOT/amigaallegro" -B "$BUILD_ROOT/amigaallegro" \
     -DAMIGA_PORT_PREFIX="$PREFIX" \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     -DALLEGRO_SDL=ON \
-    -DALLEGRO_AMIGA_BITMAP_BATCH_LIMIT=6 \
+    -DALLEGRO_AMIGA_BITMAP_BATCH_LIMIT=0 \
     -DSHARED=OFF \
     -DWANT_MONOLITH=ON \
     -DWANT_ALLOW_SSE=OFF \

@@ -24,6 +24,7 @@
 #include <physfs.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 #include "asset.h"
 #include "modutils.h"
@@ -1050,7 +1051,7 @@ bool clear_dir_predicate_coldfile(ALLEGRO_FS_ENTRY* entry, void* context)
  */
 uint32_t get_fs_mode(const char* path)
 {
-    ALLEGRO_FS_ENTRY* entry = al_create_fs_entry(gamedir);
+    ALLEGRO_FS_ENTRY* entry = al_create_fs_entry(path);
     uint32_t mode = al_fs_entry_exists(entry) ? al_get_fs_entry_mode(entry) : 0;
     al_destroy_fs_entry(entry);
 
@@ -1527,6 +1528,10 @@ bool virtual_file_exists(const char* filepath, void* context)
  */
 void setup_compatibility_pack(const char* shared_dirpath, const char* engine_version, uint32_t game_id, const char* guessed_game_title)
 {
+    enum { COMPATIBILITY_CACHE_REVISION = 1 };
+    char cache_name[128];
+    char cache_fullpath[1024] = "";
+
     /* we'll read files to memory */
     int file_count = 0;
     char** file_vpath = NULL;
@@ -1540,6 +1545,63 @@ void setup_compatibility_pack(const char* shared_dirpath, const char* engine_ver
     /* validate */
     if(!has_pak_support())
         CRASH("Compatibility mode is not available because PhysFS has been compiled without PAK support.");
+
+    /*
+     * Compatibility packs are deterministic for an engine revision and a
+     * particular game package. Reusing the generated pack avoids reparsing
+     * translations and copying compatibility scripts on every launch. The
+     * package size and modification time invalidate the cache when it changes.
+     */
+    {
+        int64_t source_size = 0;
+        int64_t source_mtime = 0;
+        struct stat source_stat;
+
+        /* This function runs with Allegro's PhysFS file interface active.
+           Use the native C runtime here because gamedir is a physical path
+           (including Amiga volume/assign paths), not a PhysFS virtual path. */
+        if(stat(gamedir, &source_stat) == 0) {
+            source_size = (int64_t)source_stat.st_size;
+            source_mtime = (int64_t)source_stat.st_mtime;
+        }
+        else {
+            WARN("Can't stat game package %s; compatibility cache invalidation will use fallback metadata", gamedir);
+        }
+
+        snprintf(
+            cache_name,
+            sizeof(cache_name),
+            "compatibility-r%d-%08x-%08x-%lld-%lld.pak",
+            COMPATIBILITY_CACHE_REVISION,
+            (unsigned int)parse_version_number(GAME_VERSION_STRING),
+            (unsigned int)game_id,
+            (long long)source_size,
+            (long long)source_mtime
+        );
+
+        ALLEGRO_PATH* cache_path = al_create_path_for_directory(writedir);
+        if(cache_path != NULL) {
+            al_set_path_filename(cache_path, cache_name);
+            str_cpy(cache_fullpath, al_path_cstr(cache_path, ALLEGRO_NATIVE_PATH_SEP), sizeof(cache_fullpath));
+            al_destroy_path(cache_path);
+        }
+
+        if(cache_fullpath[0] != '\0') {
+            ALLEGRO_FS_ENTRY* cache_entry = al_create_fs_entry(cache_fullpath);
+            bool cache_exists = cache_entry != NULL && al_fs_entry_exists(cache_entry) &&
+                                al_get_fs_entry_size(cache_entry) > 0;
+            al_destroy_fs_entry(cache_entry);
+
+            if(cache_exists && PHYSFS_mount(cache_fullpath, "/", 0)) {
+                LOG("Reusing compatibility pack cache: %s", cache_fullpath);
+                return;
+            }
+            else if(cache_exists) {
+                WARN("Can't mount cached compatibility pack %s. It will be rebuilt. Error: %s",
+                     cache_fullpath, PHYSFSx_getLastErrorMessage());
+            }
+        }
+    }
 
 
 
@@ -1691,10 +1753,9 @@ void setup_compatibility_pack(const char* shared_dirpath, const char* engine_ver
         CRASH("Can't mount the compatibility pack. Error: %s", PHYSFSx_getLastErrorMessage());
     }
 
-    /* write the compatibility pack to secondary storage
-       (for debugging purposes) */
-    if(!write_file("compatibility.pak", pack_data, pack_size))
-        WARN("Can't write the compatibility pack to the disk!");
+    /* Persist the pack so subsequent launches can mount it directly. */
+    if(!write_file(cache_name, pack_data, pack_size))
+        WARN("Can't write the compatibility pack cache to the disk!");
 
     /* cleanup */
     if(file_size != NULL)

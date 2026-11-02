@@ -77,6 +77,13 @@ static bool open_console();
 static void close_console();
 
 static ALLEGRO_MUTEX* mutex = NULL;
+static unsigned int pending_log_lines = 0;
+
+#if defined(__AMIGAOS3__)
+#define LOGFILE_FLUSH_INTERVAL 64
+#else
+#define LOGFILE_FLUSH_INTERVAL 1
+#endif
 
 
 
@@ -146,9 +153,15 @@ void logfile_message(const char* fmt, ...)
         CALL(al_vfprintf, fmt, args);
         va_end(args);
 
-        /* break line */
+        /* break line. Amiga storage is much faster when writes are batched. */
         CALL(al_fputs, LINE_BREAK);
-        CALL(al_fflush);
+        pending_log_lines++;
+        if(logfile != NULL && pending_log_lines >= LOGFILE_FLUSH_INTERVAL) {
+            al_fflush(logfile);
+            pending_log_lines = 0;
+        }
+        if(console != NULL)
+            al_fflush(console);
 
         /* "PhysFS does not support the text-mode reading and writing,
             which means that Windows-style newlines will not be preserved."
@@ -173,6 +186,23 @@ void logfile_message(const char* fmt, ...)
 }
 
 
+/*
+ * logfile_flush()
+ * Forces buffered output to its destinations. Fatal-error paths call this so
+ * batching does not make diagnostics disappear.
+ */
+void logfile_flush()
+{
+#if !defined(__ANDROID__)
+    if(logfile != NULL)
+        al_fflush(logfile);
+    if(console != NULL)
+        al_fflush(console);
+    pending_log_lines = 0;
+#endif
+}
+
+
 
 /* 
  * logfile_release()
@@ -181,6 +211,7 @@ void logfile_message(const char* fmt, ...)
 void logfile_release(int flags)
 {
     logfile_message("tchau!");
+    logfile_flush();
 
     if(flags & LOGFILE_TXT)
         close_logfile();

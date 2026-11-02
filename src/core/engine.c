@@ -128,6 +128,14 @@ static void perform_extra_validation(const commandline_t* cmd);
 static const char* INTRO_QUEST = "quests/intro.qst";
 static const char* SSAPP_LEVEL = "levels/surgescript.lev";
 static const double GC_INTERVAL = 10.0; /* in seconds (garbage collector) */
+
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+static double profile_manager_update_seconds = 0.0;
+static double profile_scene_update_seconds = 0.0;
+static double profile_scene_render_seconds = 0.0;
+static double profile_present_seconds = 0.0;
+static unsigned int profile_render_frames = 0;
+#endif
 static ALLEGRO_TIMER* a5_timer = NULL;
 static bool wants_to_quit = false;
 static bool wants_to_restart = false;
@@ -227,10 +235,35 @@ void engine_mainloop()
 
         /* render */
         if(can_draw && is_ready_to_draw && al_is_event_queue_empty(a5_event_queue)) {
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+            const double scene_render_start = al_get_time();
+#endif
             current_scene->render();
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+            const double present_start = al_get_time();
+            profile_scene_render_seconds += present_start - scene_render_start;
+#endif
             fadefx_update();
             video_render(render_overlay);
             screenshot_update();
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+            profile_present_seconds += al_get_time() - present_start;
+            if(++profile_render_frames >= 300) {
+                const double frames = (double)profile_render_frames;
+                logfile_message(
+                    "AMIGA PROFILE: managers=%.3fms scene-update=%.3fms scene-render=%.3fms present=%.3fms",
+                    1000.0 * profile_manager_update_seconds / frames,
+                    1000.0 * profile_scene_update_seconds / frames,
+                    1000.0 * profile_scene_render_seconds / frames,
+                    1000.0 * profile_present_seconds / frames
+                );
+                profile_manager_update_seconds = 0.0;
+                profile_scene_update_seconds = 0.0;
+                profile_scene_render_seconds = 0.0;
+                profile_present_seconds = 0.0;
+                profile_render_frames = 0;
+            }
+#endif
             is_ready_to_draw = false;
         }
     }
@@ -1039,6 +1072,9 @@ void a5_handle_timer_event(const ALLEGRO_EVENT* event, void* data)
 {
     bool* is_ready_to_draw = (bool*)data;
 
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+    const double manager_update_start = al_get_time();
+#endif
     /* update the managers */
     timer_update();
     audio_update();
@@ -1046,9 +1082,17 @@ void a5_handle_timer_event(const ALLEGRO_EVENT* event, void* data)
     input_update();
     clean_garbage();
 
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+    const double scene_update_start = al_get_time();
+    profile_manager_update_seconds += scene_update_start - manager_update_start;
+#endif
+
     /* update the current scene */
     scene_t* current_scene = scenestack_top();
     current_scene->update();
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+    profile_scene_update_seconds += al_get_time() - scene_update_start;
+#endif
     *is_ready_to_draw = true;
 
     /* prevent locking */

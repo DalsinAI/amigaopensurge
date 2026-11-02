@@ -1,0 +1,57 @@
+diff --git a/src/opengl/ogl_draw.c b/src/opengl/ogl_draw.c
+index aa806f685..cc3ff4a80 100644
+--- a/src/opengl/ogl_draw.c
++++ b/src/opengl/ogl_draw.c
+@@ -1051,7 +1051,14 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
+       glEnable(GL_TEXTURE_2D);
+    }
+ 
++   #if defined(__amigaos3__)
++   /* Avoid a synchronous GL state query at every batch boundary. Allegro owns
++    * the binding here, and an unconditional bind is cheaper through GL.module
++    * and OpenGPU than a glGetIntegerv round trip. */
++   current_texture = 0;
++   #else
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
++   #endif
+    if (current_texture != disp->cache_texture) {
+       if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+ #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+diff --git a/src/sdl/sdl_display.c b/src/sdl/sdl_display.c
+index db3c51f0f..d0b65069d 100644
+--- a/src/sdl/sdl_display.c
++++ b/src/sdl/sdl_display.c
+@@ -320,8 +320,10 @@ static void sdl_flip_display(ALLEGRO_DISPLAY *d)
+    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
+    SDL_GL_SwapWindow(sdl->window);
+ 
++#if !defined(__amigaos3__)
+    // SDL loses texture contents, for example on resize.
+    al_backup_dirty_bitmaps(d);
++#endif
+ }
+ 
+ static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+@@ -431,6 +433,12 @@ static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
+ {
+    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+ 
++#if defined(__amigaos3__)
++   /* OpenGPU keeps textures across ordinary swaps. Back them up only before
++    * an operation which may recreate the SDL GL context, not every frame. */
++   al_backup_dirty_bitmaps(display);
++#endif
++
+    // Allegro uses pixels everywhere, while SDL uses screen space for window size
+    int window_width, drawable_width, h;
+    SDL_GetWindowSize(sdl->window, &window_width, &h);
+@@ -452,6 +460,9 @@ static bool sdl_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
+          SDL_SetWindowBordered(sdl->window, !flag_onoff);
+          return true;
+       case ALLEGRO_FULLSCREEN_WINDOW:
++#if defined(__amigaos3__)
++         al_backup_dirty_bitmaps(display);
++#endif
+          SDL_SetWindowFullscreen(sdl->window, flag_onoff ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+          return true;
+       case ALLEGRO_MAXIMIZED:
