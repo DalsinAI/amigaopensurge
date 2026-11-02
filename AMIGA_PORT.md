@@ -1,6 +1,6 @@
 # Amiga port intake: Open Surge
 
-- Port Atlas: [g-open-surge](https://www.amigachrome.com/ports/#g-open-surge)
+- Port Atlas: [g-open-surge](https://www.amicradle.com/ports/#g-open-surge)
 - Priority: `P2`
 - Atlas decision: `evaluate`
 - Upstream source: `https://github.com/alemart/opensurge`
