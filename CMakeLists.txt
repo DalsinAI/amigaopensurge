@@ -53,6 +53,12 @@ message("${GAME_NAME} version ${GAME_VERSION_STRING}")
 
 option(ALLEGRO_MONOLITH "Use the monolith version of Allegro" OFF)
 option(SURGESCRIPT_STATIC "Link SurgeScript statically" OFF)
+option(OPEN_SURGE_AMIGAOS3 "Build for classic AmigaOS 3.x using OpenAmigaGCC" OFF)
+
+if(OPEN_SURGE_AMIGAOS3)
+  list(APPEND DEFS "__AMIGAOS3__=1" "ALLEGRO_STATICLINK=1")
+  set(GAME_RUNINPLACE ON CACHE BOOL "Read assets from the executable directory" FORCE)
+endif()
 
 # Link Allegro statically
 option(ALLEGRO_STATIC "Link Allegro statically (Windows only)" OFF)
@@ -283,6 +289,45 @@ elseif(ANDROID)
   target_include_directories(${GAME_UNIXNAME} PUBLIC ${SURGESCRIPT_INCDIR} ${PHYSFS_INCDIR} ${ALLEGRO_INCDIR})
   set_target_properties(${GAME_UNIXNAME} PROPERTIES COMPILE_FLAGS "-Wall")
 
+elseif(OPEN_SURGE_AMIGAOS3)
+
+  # Classic AmigaOS executable. The platform compatibility library supplied
+  # through ALLEGRO_LIBRARY_PATH owns display, input, audio and timer services.
+  add_executable(${GAME_UNIXNAME} ${GAME_SRCS})
+  find_library(LSDL2 SDL2 REQUIRED)
+  find_library(LGL GL REQUIRED)
+  find_library(LFREETYPE freetype REQUIRED)
+  find_library(LPNG png REQUIRED)
+  find_library(LZ z REQUIRED)
+  find_library(LJPEG jpeg REQUIRED)
+  find_library(LOGG ogg REQUIRED)
+  find_library(LVORBIS vorbis REQUIRED)
+  find_library(LVORBISFILE vorbisfile REQUIRED)
+  target_sources(${GAME_UNIXNAME} PRIVATE
+    ports/amigaos3/compat/native_dialog.c
+  )
+  target_include_directories(${GAME_UNIXNAME} BEFORE PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/ports/amigaos3/compat
+  )
+  target_link_libraries(${GAME_UNIXNAME}
+    ${LSURGESCRIPT}
+    ${LPHYSFS}
+    ${LALLEGRO_ALL}
+    ${LVORBISFILE}
+    ${LVORBIS}
+    ${LOGG}
+    ${LSDL2}
+    ${LGL}
+    ${LFREETYPE}
+    ${LPNG}
+    ${LJPEG}
+    ${LZ}
+    m
+    pthread
+  )
+  target_include_directories(${GAME_UNIXNAME} PUBLIC ${SURGESCRIPT_INCDIR} ${PHYSFS_INCDIR} ${ALLEGRO_INCDIR})
+  target_compile_options(${GAME_UNIXNAME} PRIVATE -Wall)
+
 elseif(UNIX)
 
   # Unix executable
@@ -347,5 +392,22 @@ elseif(GAME_RUNINPLACE)
     PATTERN ".git" EXCLUDE
     PATTERN "screenshots/*.png" EXCLUDE
   )
+  if(OPEN_SURGE_AMIGAOS3)
+    install(FILES ports/amigaos3/RUNTIME.md
+      DESTINATION "${GAME_DISTDIR}"
+      RENAME AMIGAOS3-README.md
+    )
+    # OpenGPU-safe artwork overrides. Install these after the common assets so
+    # they replace the large splash atlas and the purple Waterworks palette.
+    install(FILES ports/amigaos3/assets/images/scenes/allegro_splash.png
+      DESTINATION "${GAME_DISTDIR}/images/scenes"
+    )
+    install(FILES ports/amigaos3/assets/images/backgrounds/waterworks-zone-outdoors.png
+      DESTINATION "${GAME_DISTDIR}/images/backgrounds"
+    )
+    install(FILES ports/amigaos3/assets/themes/scenes/allegro_splash.bg
+      DESTINATION "${GAME_DISTDIR}/themes/scenes"
+    )
+  endif()
 
 endif()

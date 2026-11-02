@@ -1,0 +1,37 @@
+diff --git a/src/surgescript/third_party/xxhash.h b/src/surgescript/third_party/xxhash.h
+index 08ab794..133ffae 100644
+--- a/src/surgescript/third_party/xxhash.h
++++ b/src/surgescript/third_party/xxhash.h
+@@ -1005,7 +1005,10 @@ struct XXH64_state_s {
+    XXH64_hash_t reserved64;   /*!< Reserved field. Do not read or write to it, it may be removed. */
+ };   /* typedef'd to XXH64_state_t */
+ 
+-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
++#if defined(__amigaos3__)
++/* Classic Amiga HUNK objects support at most 8-byte alignment. */
++#  define XXH_ALIGN(n)      __attribute__ ((aligned(8)))
++#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
+ #  include <stdalign.h>
+ #  define XXH_ALIGN(n)      alignas(n)
+ #elif defined(__cplusplus) && (__cplusplus >= 201103L) /* >= C++11 */
+
+diff --git a/src/surgescript/runtime/program.c b/src/surgescript/runtime/program.c
+index c8ef4d9..b31c3e7 100644
+--- a/src/surgescript/runtime/program.c
++++ b/src/surgescript/runtime/program.c
+@@ -104,3 +104,7 @@ static inline void debug(const surgescript_program_t* program, const surgescript
+ /* optimizations */
++#if defined(__amigaos3__)
++#define WANT_OPTIMIZED_PROGRAM_CALLS    0
++#else
+ #define WANT_OPTIMIZED_PROGRAM_CALLS    1
++#endif
+ #define OPTIMIZED_CALL_THRESHOLD        4 /*8*/
+@@ -534,3 +538,5 @@ unsigned int run_instruction(const surgescript_program_t* program, const surgesc
+-        case SSOP_MOVX: /* move int64 */
+-            surgescript_var_set_rawbits(t(a), b.i64);
++        case SSOP_MOVX: /* move signed integer into the raw 64-bit register */
++            /* The operand is emitted as a 32-bit int. Reading the union as
++             * i64 shifts it into the high word on big-endian AmigaOS/m68k. */
++            surgescript_var_set_rawbits(t(a), (int64_t)b.i);
+             break;

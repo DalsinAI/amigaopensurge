@@ -993,16 +993,22 @@ void a5_handle_hotkey(const ALLEGRO_EVENT* event, void* data)
         return;
 
     switch(event->keyboard.keycode) {
-        /* F11: toggle fullscreen */
+        /* F10 on AmigaOS (F11 is captured by browsers) */
+        #if defined(__amigaos3__)
+        case ALLEGRO_KEY_F10:
+        #else
         case ALLEGRO_KEY_F11:
+        #endif
             video_set_fullscreen(!video_is_fullscreen());
             break;
 
-        /* F10: toggle render queue stats report */
+        /* F10: toggle render queue stats report (non-AmigaOS) */
+        #if !defined(__amigaos3__)
         case ALLEGRO_KEY_F10:
             if(!renderqueue_toggle_stats_report())
                 video_showmessage("Can't toggle stats report");
             break;
+        #endif
 
         /* F9: toggle FPS counter */
         case ALLEGRO_KEY_F9:

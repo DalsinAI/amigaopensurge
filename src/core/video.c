@@ -970,13 +970,18 @@ void reconfigure_display()
     int delta_width = new_display_width - al_get_display_width(display);
     int delta_height = new_display_height - al_get_display_height(display);
 
-    /* toggle fullscreen */
-    if(!al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, settings.is_fullscreen))
-        LOG("Can't toggle fullscreen mode");
+    /* Some SDL drivers do not tolerate re-applying the current display mode. */
+    bool current_fullscreen = (al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW) != 0;
+    if(current_fullscreen != settings.is_fullscreen) {
+        if(!al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, settings.is_fullscreen))
+            LOG("Can't toggle fullscreen mode");
+    }
 
     /* resize the window */
     if(!(al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW)) {
-        if(al_resize_display(display, new_display_width, new_display_height)) {
+        if((new_display_width == al_get_display_width(display) &&
+            new_display_height == al_get_display_height(display)) ||
+           al_resize_display(display, new_display_width, new_display_height)) {
 
             /* reposition the window */
             int x, y;

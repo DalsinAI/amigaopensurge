@@ -138,6 +138,9 @@ bool launch_url(const char *url)
                 success = false;
             }
         }
+#elif defined(__AMIGAOS3__)
+        /* Browser launching needs an OpenURL.library adapter on classic Amiga. */
+        success = false;
 #else
 #error "Unsupported operating system."
 #endif

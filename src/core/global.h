@@ -65,6 +65,8 @@
 #define GAME_PLATFORM_NAME      "macOS"
 #elif defined(__ANDROID__)
 #define GAME_PLATFORM_NAME      "Android"
+#elif defined(__AMIGAOS3__)
+#define GAME_PLATFORM_NAME      "AmigaOS 3"
 #elif defined(__linux__) || defined(__linux)
 #define GAME_PLATFORM_NAME      "Linux"
 #elif defined(__unix__) || defined(__unix)

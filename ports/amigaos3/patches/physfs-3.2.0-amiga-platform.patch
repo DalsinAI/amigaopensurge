@@ -1,0 +1,71 @@
+diff --git a/src/physfs_platforms.h b/src/physfs_platforms.h
+index 1ac17d9..e9bfac8 100644
+--- a/src/physfs_platforms.h
++++ b/src/physfs_platforms.h
+@@ -40,6 +40,10 @@
+ #  define PHYSFS_PLATFORM_POSIX 1
+ #elif defined(macintosh)
+ #  error Classic Mac OS support was dropped from PhysicsFS 2.0. Move to OS X.
++#elif defined(__amigaos3__)
++#  define PHYSFS_NO_CDROM_SUPPORT 1
++#  define PHYSFS_PLATFORM_UNIX 1
++#  define PHYSFS_PLATFORM_POSIX 1
+ #elif defined(__ANDROID__)
+  #  define PHYSFS_PLATFORM_LINUX 1
+  #  define PHYSFS_PLATFORM_ANDROID 1
+diff --git a/src/physfs_internal.h b/src/physfs_internal.h
+index 3624983..a576c38 100644
+--- a/src/physfs_internal.h
++++ b/src/physfs_internal.h
+@@ -115,7 +115,8 @@ __PHYSFS_COMPILE_TIME_ASSERT(LongEqualsInt, sizeof (int) == sizeof (long));
+ __PHYSFS_COMPILE_TIME_ASSERT(LongEqualsInt, sizeof (int) == sizeof (long));
+ #define __PHYSFS_ATOMIC_INCR(ptrval) _InterlockedIncrement((long*)(ptrval))
+ #define __PHYSFS_ATOMIC_DECR(ptrval) _InterlockedDecrement((long*)(ptrval))
+-#elif defined(__clang__) || (defined(__GNUC__) && (((__GNUC__ * 10000) + (__GNUC_MINOR__ * 100)) >= 40100))
++#elif !defined(__amigaos3__) && (defined(__clang__) || \
++      (defined(__GNUC__) && (((__GNUC__ * 10000) + (__GNUC_MINOR__ * 100)) >= 40100)))
+ #define __PHYSFS_ATOMIC_INCR(ptrval) __sync_add_and_fetch(ptrval, 1)
+ #define __PHYSFS_ATOMIC_DECR(ptrval) __sync_add_and_fetch(ptrval, -1)
+ #elif defined(__WATCOMC__) && defined(__386__)
+diff --git a/src/physfs_platform_posix.c b/src/physfs_platform_posix.c
+index e2f72e5..cb739c4 100644
+--- a/src/physfs_platform_posix.c
++++ b/src/physfs_platform_posix.c
+@@ -59,25 +59,35 @@ static char *getUserDirByUID(void)
+ static char *getUserDirByUID(void)
+ {
++#if defined(__amigaos3__)
++    static const char path[] = "PROGDIR:";
++    char *retval = (char *) allocator.Malloc(sizeof (path));
++
++    if (retval != NULL)
++        memcpy(retval, path, sizeof (path));
++
++    return retval;
++#else
+     uid_t uid = getuid();
+     struct passwd *pw;
+     char *retval = NULL;
+ 
+     pw = getpwuid(uid);
+     if ((pw != NULL) && (pw->pw_dir != NULL) && (*pw->pw_dir != '\0'))
+     {
+         const size_t dlen = strlen(pw->pw_dir);
+         const size_t add_dirsep = (pw->pw_dir[dlen-1] != '/') ? 1 : 0;
+         retval = (char *) allocator.Malloc(dlen + 1 + add_dirsep);
+         if (retval != NULL)
+         {
+             strcpy(retval, pw->pw_dir);
+             if (add_dirsep)
+             {
+                 retval[dlen] = '/';
+                 retval[dlen+1] = '\0';
+             } /* if */
+         } /* if */
+     } /* if */
+     
+     return retval;
++#endif
+ } /* getUserDirByUID */
+ 
+ 
