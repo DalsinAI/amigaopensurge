@@ -118,6 +118,14 @@ static bool is_setup_object(const char* object_name);
 #define MAX_POWERUPS            10
 #define DLGBOX_MAXTIME          10000
 #define TEAM_MAX                16
+
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+static double profile_entity_update_seconds = 0.0;
+static double profile_script_update_seconds = 0.0;
+static double profile_script_late_seconds = 0.0;
+static double profile_script_render_seconds = 0.0;
+static unsigned int profile_update_frames = 0;
+#endif
 #define DEFAULT_GRAVITY         787.5f
 #define PATH_MAXLEN             1024
 #define LINE_MAXLEN             1024
@@ -1504,6 +1512,10 @@ void level_update()
     /* updating the entities */
     /* -------------------------------------- */
 
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+    const double profile_entity_start = al_get_time();
+#endif
+
     /* update background */
     background_update(backgroundtheme);
 
@@ -1654,6 +1666,25 @@ void level_update()
     major_bricks = brickmanager_release_list(major_bricks);
     major_items = entitymanager_release_retrieved_item_list(major_items);
     major_enemies = entitymanager_release_retrieved_object_list(major_enemies);
+
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+    profile_entity_update_seconds += al_get_time() - profile_entity_start;
+    if(++profile_update_frames >= 300) {
+        const double frames = (double)profile_update_frames;
+        logfile_message(
+            "AMIGA PROFILE: entity=%.3fms ss-update=%.3fms ss-late=%.3fms ss-render=%.3fms",
+            1000.0 * profile_entity_update_seconds / frames,
+            1000.0 * profile_script_update_seconds / frames,
+            1000.0 * profile_script_late_seconds / frames,
+            1000.0 * profile_script_render_seconds / frames
+        );
+        profile_entity_update_seconds = 0.0;
+        profile_script_update_seconds = 0.0;
+        profile_script_late_seconds = 0.0;
+        profile_script_render_seconds = 0.0;
+        profile_update_frames = 0;
+    }
+#endif
 }
 
 
@@ -3041,7 +3072,13 @@ void update_ssobjects()
     surgescript_vm_t* vm = surgescript_vm();
 
     if(surgescript_vm_is_active(vm)) {
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+        const double start = al_get_time();
+#endif
         surgescript_vm_update(vm);
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+        profile_script_update_seconds += al_get_time() - start;
+#endif
     }
 }
 
@@ -3052,7 +3089,13 @@ void late_update_ssobjects()
 
     if(surgescript_vm_is_active(vm)) {
         surgescript_object_t* entity_manager = entitymanager_ssobject();
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+        const double start = al_get_time();
+#endif
         surgescript_object_call_function(entity_manager, "lateUpdate", NULL, 0, NULL);
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+        profile_script_late_seconds += al_get_time() - start;
+#endif
     }
 }
 
@@ -3063,7 +3106,13 @@ void render_ssobjects()
 
     if(surgescript_vm_is_active(vm)) {
         surgescript_object_t* entity_manager = entitymanager_ssobject();
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+        const double start = al_get_time();
+#endif
         surgescript_object_call_function(entity_manager, "render", NULL, 0, NULL);
+#if defined(OPEN_SURGE_AMIGA_PROFILE)
+        profile_script_render_seconds += al_get_time() - start;
+#endif
     }
 }
 

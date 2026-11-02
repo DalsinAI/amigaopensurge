@@ -151,6 +151,7 @@ void fatal_error(const char *fmt, ...)
     /* display an error */
     logfile_message("----- crash -----");
     logfile_message("%s", buf);
+    logfile_flush();
     fprintf(stderr, "%s\n", buf);
 
 #if defined(__ANDROID__)
@@ -428,6 +429,14 @@ int mkpath(const char* filepath, uint32_t mode)
     }
     else
         p = p+1;
+#elif defined(__AMIGAOS3__)
+    /* Amiga volume and assign paths are absolute when they have a non-empty
+       name followed by a colon, e.g. "DH1:Games/" or "PROGDIR:.userdata/". */
+    p = strchr(path, ':');
+    if(p == NULL || p == path) {
+        logfile_message("Can't mkpath \"%s\": not an absolute Amiga path", path);
+        return -1;
+    }
 #else
     /* ensure we have an absolute filepath */
     if(path[0] != '/') {

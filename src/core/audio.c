@@ -65,6 +65,17 @@ struct music_t {
 #define DEFAULT_MIXER_PERCENTAGE        0.5f
 #define DEFAULT_MUFFLER_PROFILE         MUFFLER_MEDIUM
 
+#if defined(__AMIGAOS3__)
+/* Larger music fragments reduce decoder wakeups and guard against Vorbis
+ * underruns on a 68040. Music latency is not input latency, so the extra
+ * buffering is a better trade on the classic target. */
+#define MUSIC_STREAM_FRAGMENTS          8
+#define MUSIC_STREAM_FRAGMENT_SAMPLES  2048
+#else
+#define MUSIC_STREAM_FRAGMENTS          4
+#define MUSIC_STREAM_FRAGMENT_SAMPLES  1024
+#endif
+
 static const char* MUFFLER_PROFILE_NAME[] = {
     [MUFFLER_OFF] = "off",
     [MUFFLER_LOW] = "low",
@@ -127,7 +138,8 @@ music_t *music_load(const char *path)
         m = mallocx(sizeof *m);
         m->is_paused = false;
         m->filepath = str_dup(path);
-        if(NULL == (m->stream = al_load_audio_stream(fullpath, 4, 1024)))
+        if(NULL == (m->stream = al_load_audio_stream(
+            fullpath, MUSIC_STREAM_FRAGMENTS, MUSIC_STREAM_FRAGMENT_SAMPLES)))
             fatal_error("Can't load music \"%s\"", path);
         
         /* configure the audio stream */

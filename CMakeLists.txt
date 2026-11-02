@@ -54,10 +54,14 @@ message("${GAME_NAME} version ${GAME_VERSION_STRING}")
 option(ALLEGRO_MONOLITH "Use the monolith version of Allegro" OFF)
 option(SURGESCRIPT_STATIC "Link SurgeScript statically" OFF)
 option(OPEN_SURGE_AMIGAOS3 "Build for classic AmigaOS 3.x using OpenAmigaGCC" OFF)
+option(OPEN_SURGE_AMIGA_PROFILE "Log low-overhead Amiga frame phase timings" OFF)
 
 if(OPEN_SURGE_AMIGAOS3)
   list(APPEND DEFS "__AMIGAOS3__=1" "ALLEGRO_STATICLINK=1")
   set(GAME_RUNINPLACE ON CACHE BOOL "Read assets from the executable directory" FORCE)
+  if(OPEN_SURGE_AMIGA_PROFILE)
+    list(APPEND DEFS "OPEN_SURGE_AMIGA_PROFILE=1")
+  endif()
 endif()
 
 # Link Allegro statically
