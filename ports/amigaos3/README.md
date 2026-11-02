@@ -13,9 +13,10 @@ OpenAmigaGCC 68040/68881 target used by AmigaChrome.
   Allegro 5.2.11.3 have verified 68k static builds.
 - All OpenSurge translation units compile and link into an Amiga loadseg()
   executable.
-- Runtime validation on classic AmigaOS remains outstanding.
-- `package.sh` creates a stripped portable archive with the complete asset set
-  and a runtime handoff note.
+- Windowed and fullscreen runtime paths are validated on AmigaOS 3.2.3 in an
+  AmigaChrome AC090 Cradle lab using OpenGPU and the existing SDL2 module.
+- `package.sh` creates a stripped RC archive with the complete asset set and a
+  runtime handoff note.
 
 ## Dependency gate
 
@@ -40,11 +41,14 @@ they are staged, the same command performs the real CMake configuration and
 compile, ensuring later failures are compiler/linker evidence rather than a
 paper plan.
 
-`ports/amigaos3/build-dependencies.sh` fetches all three pinned sources, applies
-the reviewed classic-Amiga compatibility patches, and cross-compiles them into
-the staging prefix. The Allegro patch removes an unused GLU dependency from the
-SDL backend; feature-probe overrides select the libc calls actually available on
-the target.
+`ports/amigaos3/build-dependencies.sh` fetches the pinned dependency sources and
+cross-compiles them into the staging prefix. Allegro comes from the separately
+maintained `DalsinAI/amigaallegro` port at an exact commit; OpenSurge does not
+carry a second Allegro patch or replace Allegro calls in the game. Feature-probe
+overrides select the libc calls actually available on the target. The
+SurgeScript patch also fixes its 32-bit `MOVX` operand on big-endian 68k; without
+that correction, small constructor allocations are decoded in the high half of
+the 64-bit register and exhaust the script heap during startup.
 
 ## Canonical target
 

@@ -397,6 +397,17 @@ elseif(GAME_RUNINPLACE)
       DESTINATION "${GAME_DISTDIR}"
       RENAME AMIGAOS3-README.md
     )
+    # OpenGPU-safe artwork overrides. Install these after the common assets so
+    # they replace the large splash atlas and the purple Waterworks palette.
+    install(FILES ports/amigaos3/assets/images/scenes/allegro_splash.png
+      DESTINATION "${GAME_DISTDIR}/images/scenes"
+    )
+    install(FILES ports/amigaos3/assets/images/backgrounds/waterworks-zone-outdoors.png
+      DESTINATION "${GAME_DISTDIR}/images/backgrounds"
+    )
+    install(FILES ports/amigaos3/assets/themes/scenes/allegro_splash.bg
+      DESTINATION "${GAME_DISTDIR}/themes/scenes"
+    )
   endif()
 
 endif()

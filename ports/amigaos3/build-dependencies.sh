@@ -29,6 +29,22 @@ fetch_source() {
     fi
 }
 
+fetch_commit() {
+    name=$1
+    url=$2
+    expected=$3
+    destination="$SOURCE_ROOT/$name"
+
+    if [ ! -d "$destination/.git" ]; then
+        git clone --filter=blob:none --no-checkout "$url" "$destination"
+    fi
+
+    if ! git -C "$destination" cat-file -e "$expected^{commit}" 2>/dev/null; then
+        git -C "$destination" fetch --depth 1 origin "$expected"
+    fi
+    git -C "$destination" switch --detach "$expected"
+}
+
 apply_once() {
     source_dir=$1
     patch_file=$2
@@ -112,17 +128,17 @@ cmake -S "$SOURCE_ROOT/vorbis" -B "$BUILD_ROOT/vorbis" \
 cmake --build "$BUILD_ROOT/vorbis" --parallel
 cmake --install "$BUILD_ROOT/vorbis"
 
-fetch_source allegro5 https://github.com/liballeg/allegro5.git 5.2.11.3 \
-    9e58c5e03af16810e8cfecec719e69ce4a76b49b
-apply_once "$SOURCE_ROOT/allegro5" \
-    "$PATCH_ROOT/allegro-5.2.11.3-sdl-no-glu.patch"
+fetch_commit amigaallegro https://github.com/DalsinAI/amigaallegro.git \
+    51df076df8e17b0ad4feca0f455e6725edbab221
 
-cmake -S "$SOURCE_ROOT/allegro5" -B "$BUILD_ROOT/allegro5" \
+cmake -S "$SOURCE_ROOT/amigaallegro" -B "$BUILD_ROOT/amigaallegro" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-    -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
+    -DCMAKE_TOOLCHAIN_FILE="$SOURCE_ROOT/amigaallegro/cmake/Toolchain-amigaos3.cmake" \
+    -DAMIGA_STOVE="$AMIGA_STOVE_PATH" \
     -DAMIGA_PORT_PREFIX="$PREFIX" \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     -DALLEGRO_SDL=ON \
+    -DALLEGRO_AMIGA_BITMAP_BATCH_LIMIT=6 \
     -DSHARED=OFF \
     -DWANT_MONOLITH=ON \
     -DWANT_ALLOW_SSE=OFF \
@@ -161,7 +177,7 @@ cmake -S "$SOURCE_ROOT/allegro5" -B "$BUILD_ROOT/allegro5" \
     -DALLEGRO_HAVE_FTELLO=0 \
     -DALLEGRO_HAVE_STRERROR_R=0 \
     -DALLEGRO_HAVE_STRERROR_S=0
-cmake --build "$BUILD_ROOT/allegro5" --parallel
-cmake --install "$BUILD_ROOT/allegro5"
+cmake --build "$BUILD_ROOT/amigaallegro" --parallel
+cmake --install "$BUILD_ROOT/amigaallegro"
 
 echo "Installed AmigaOS target dependencies in $PREFIX"

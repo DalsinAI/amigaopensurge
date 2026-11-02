@@ -4,7 +4,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 BUILD_DIR=${BUILD_DIR:-"$ROOT/build/amigaos3"}
 OUTPUT_DIR=${OUTPUT_DIR:-"$ROOT/build/packages"}
-ARCHIVE_NAME=${ARCHIVE_NAME:-"opensurge-0.6.1.3-amigaos3-68040-preview.tar.gz"}
+ARCHIVE_NAME=${ARCHIVE_NAME:-"opensurge-0.6.1.3-amigaos3-68040-rc1.tar.gz"}
 
 if [ ! -f "$BUILD_DIR/cmake_install.cmake" ]; then
     echo "missing configured AmigaOS build: $BUILD_DIR" >&2
