@@ -52,6 +52,6 @@ cmake -S "$ROOT" -B "$BUILD_DIR" \
     -DWANT_FASTDRAW=OFF \
     -DWANT_PLAYMOD=OFF \
     -DWANT_BUILD_DATE=OFF \
-    -DGAME_BUILD_VERSION=amigaos3-rc2
+    -DGAME_BUILD_VERSION=amigaos3-rc3
 
 cmake --build "$BUILD_DIR" --parallel
