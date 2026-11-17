@@ -43,7 +43,10 @@ sh "$HERE/soft-float.sh" "$P" "$EXE" --log "$OUT/build.log" --allow "$HERE/fpu-a
 	"$BUILD/deps-build" "$BUILD/game" > "$OUT/soft-float.txt" || { cat "$OUT/soft-float.txt"; exit 2; }
 cat "$OUT/soft-float.txt"
 
-cmake --install "$BUILD/game" --strip --prefix "$BUILD/inst" > "$OUT/install.txt" 2>&1 || { tail -n 30 "$OUT/install.txt"; exit 1; }
+# GAME_DISTDIR (dist) lands under the working folder, so install from inside the scratch one
+mkdir -p "$BUILD/inst"
+(cd "$BUILD/inst" && cmake --install "$BUILD/game" --strip --prefix "$BUILD/inst") > "$OUT/install.txt" 2>&1 \
+	|| { tail -n 30 "$OUT/install.txt"; exit 1; }
 D="$BUILD/dist/OpenSurge"
 mkdir -p "$BUILD/dist"
 cp -R "$BUILD/inst/dist" "$D"
