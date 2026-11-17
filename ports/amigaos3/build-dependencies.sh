@@ -10,6 +10,9 @@ PATCH_ROOT="$ROOT/ports/amigaos3/patches"
 AMIGA_STOVE_PATH=${STOVE:-"$HOME/AmigaChrome/stoves/os32-gcc16"}
 AMIGA_SYSROOT="$AMIGA_STOVE_PATH/prefix/m68k-amigaos"
 AMIGA_SDK_DEPS="$AMIGA_SYSROOT/port-deps"
+# One soft-float binary for every 68040 and 68060: the stove's fpuauto (open7 and
+# later) takes the FPU when there is one. Allegro's own toolchain needs it passed.
+AMIGA_CPU_FLAGS=${AMIGA_CPU_FLAGS:-"-m68040 -msoft-float"}
 
 fetch_source() {
     name=$1
@@ -135,6 +138,7 @@ cmake -S "$SOURCE_ROOT/amigaallegro" -B "$BUILD_ROOT/amigaallegro" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCMAKE_TOOLCHAIN_FILE="$SOURCE_ROOT/amigaallegro/cmake/Toolchain-amigaos3.cmake" \
     -DAMIGA_STOVE="$AMIGA_STOVE_PATH" \
+    -DAMIGA_CPU_FLAGS="$AMIGA_CPU_FLAGS" \
     -DAMIGA_PORT_PREFIX="$PREFIX" \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     -DALLEGRO_SDL=ON \

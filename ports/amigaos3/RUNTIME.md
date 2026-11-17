@@ -1,12 +1,14 @@
 # OpenSurge 0.6.1.3 for classic AmigaOS
 
-This is the second 68040/68881 release candidate. Keep `opensurge` beside all the
-asset folders in this archive and start it from that directory.
+This is the fourth release candidate: one soft-float binary for every 68040 and
+68060, and the stove's fpuauto takes the FPU when there is one. Install it with
+Install-OpenSurge, or keep `opensurge` beside all the asset folders in its
+drawer and start it from there.
 
 ## Target
 
 - classic AmigaOS 3.x
-- Motorola 68040 with an FPU
+- Motorola 68040 or 68060 with an FPU
 - OpenGPU-compatible OpenGL and the AmigaChrome SDL2 runtime path
 
 ## Validated configuration

@@ -38,3 +38,6 @@ allegro.log
 *.dll
 *.pdb
 gmon.out
+build/
+build-amiga-package/
+__pycache__/

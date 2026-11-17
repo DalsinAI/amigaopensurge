@@ -1,0 +1,17 @@
+{
+  "name": "OpenSurge",
+  "version": "0.6.1.3-amigaos3-rc4",
+  "drawer": "OpenSurge",
+  "program": "opensurge",
+  "cpu": "68040",
+  "fpu": true,
+  "space": 60000000,
+  "modules": [
+    "SDL2.module",
+    "GL.module"
+  ],
+  "keep": [],
+  "parent": "Work:Games",
+  "badge": "../amiga/icons/art/opensurge.png",
+  "data": []
+}

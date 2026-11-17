@@ -1,0 +1,1 @@
+{"makefiles": ["ports/amigaos3/toolchain.cmake", "ports/amigaos3/build-dependencies.sh"], "no_cpu": ["ports/amigaos3/toolchain.cmake", "ports/amigaos3/build-dependencies.sh"], "builds": ["package/build-amiga.sh"]}
