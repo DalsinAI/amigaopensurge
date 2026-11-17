@@ -35,7 +35,10 @@ export STOVE AMIGA_PORT_PREFIX="$BUILD/prefix" SOURCE_ROOT="$BUILD/deps-src" BUI
 # CMakeLists.txt links the game into the source root (run-in-place); start clean.
 rm -f "$ROOT/opensurge"
 # every compile and link line goes to build.log
-{ sh "$ROOT/ports/amigaos3/build-dependencies.sh" && sh "$ROOT/ports/amigaos3/build-first-pass.sh"; } > "$OUT/build.log" 2>&1 \
+# build-first-pass.sh passes GAME_DISTDIR=dist, a PATH that CMake makes absolute against the
+# folder it is configured from: configure inside the scratch folder so dist lands there
+mkdir -p "$BUILD/inst"
+{ sh "$ROOT/ports/amigaos3/build-dependencies.sh" && (cd "$BUILD/inst" && sh "$ROOT/ports/amigaos3/build-first-pass.sh"); } > "$OUT/build.log" 2>&1 \
 	|| { tail -n 60 "$OUT/build.log"; exit 1; }
 EXE="$ROOT/opensurge"
 [ "$(od -An -tx1 -N4 "$EXE" | tr -d ' \n')" = "000003f3" ] || { echo "not an Amiga HUNK executable"; exit 2; }
@@ -43,9 +46,7 @@ sh "$HERE/soft-float.sh" "$P" "$EXE" --log "$OUT/build.log" --allow "$HERE/fpu-a
 	"$BUILD/deps-build" "$BUILD/game" > "$OUT/soft-float.txt" || { cat "$OUT/soft-float.txt"; exit 2; }
 cat "$OUT/soft-float.txt"
 
-# GAME_DISTDIR (dist) lands under the working folder, so install from inside the scratch one
-mkdir -p "$BUILD/inst"
-(cd "$BUILD/inst" && cmake --install "$BUILD/game" --strip --prefix "$BUILD/inst") > "$OUT/install.txt" 2>&1 \
+cmake --install "$BUILD/game" --strip > "$OUT/install.txt" 2>&1 \
 	|| { tail -n 30 "$OUT/install.txt"; exit 1; }
 D="$BUILD/dist/OpenSurge"
 mkdir -p "$BUILD/dist"
