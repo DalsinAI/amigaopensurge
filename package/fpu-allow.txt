@@ -1,0 +1,9 @@
+# C constant tables in .text that objdump decodes as code (OBJECT SYMBOL  # why)
+framing.c.obj _crc_lookup  # Ogg's CRC tables (crctable.h), static const ogg_uint32_t
+libogg.a _crc_lookup  # the same table, in the archive
+window.c.obj _vwin4096  # Vorbis window table, static const float
+window.c.obj _vwin8192  # Vorbis window table, static const float
+libvorbis.a _vwin4096  # the same table, in the archive
+libvorbis.a _vwin8192  # the same table, in the archive
+vorbisenc.c.obj __44c8_s_p3_0  # Vorbis encoder codebook (books/coupled/res_books_stereo.h), static const
+libvorbisenc.a __44c8_s_p3_0  # the same codebook, in the archive

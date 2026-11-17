@@ -20,7 +20,7 @@ set(CMAKE_AR "${AMIGA_PREFIX}/bin/m68k-amigaos-ar" CACHE FILEPATH "")
 set(CMAKE_RANLIB "${AMIGA_PREFIX}/bin/m68k-amigaos-ranlib" CACHE FILEPATH "")
 set(CMAKE_STRIP "${AMIGA_PREFIX}/bin/m68k-amigaos-strip" CACHE FILEPATH "")
 
-set(AMIGA_CPU_FLAGS "-m68040 -m68881" CACHE STRING "Target CPU and FPU")
+set(AMIGA_CPU_FLAGS "-m68040 -msoft-float" CACHE STRING "Target CPU: one soft-float binary, the stove's fpuauto (open7+) takes the FPU")
 set(AMIGA_RUNTIME "-mcrt=nix20" CACHE STRING "Amiga C runtime")
 set(AMIGA_THREAD_FLAGS "-pthread" CACHE STRING "Thread personality")
 
